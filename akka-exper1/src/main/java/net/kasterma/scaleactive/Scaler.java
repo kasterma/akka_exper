@@ -122,7 +122,7 @@ final class Scaler extends AbstractActorWithTimers {
      * @param a the active message containing the runid from the checkScale run
      */
     private void active(Active a) {
-        if (runid == a.getRunid()) {
+        if (runid.equals(a.getRunid())) {
             active.add(getSender());
         }
     }
