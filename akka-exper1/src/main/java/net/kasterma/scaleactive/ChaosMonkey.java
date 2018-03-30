@@ -9,8 +9,15 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-public class ChaosMonkey extends AbstractActorWithTimers {
-    private List<ActorRef> persons;
+/**
+ * Given a list of ActorRef periodically send a random one an Activate or
+ * Deactivate message.
+ */
+final class ChaosMonkey extends AbstractActorWithTimers {
+    /**
+     * List of Person actors to bring some chaos to.
+     */
+    private final List<ActorRef> persons;
 
     static Props props(List<ActorRef> persons) {
         return Props.create(ChaosMonkey.class, persons);
@@ -23,9 +30,15 @@ public class ChaosMonkey extends AbstractActorWithTimers {
                 FiniteDuration.apply(100, TimeUnit.MILLISECONDS));
     }
 
-    static class Chaos { }
+    /**
+     * Message from the timer to send a random Activate/Deactivate.
+     */
+    private static class Chaos { }
 
-    void chaos() {
+    /**
+     * Send a random Activate/Deactivate message.
+     */
+    private void chaos() {
         ActorRef victim = persons.get(new Random().nextInt(persons.size()));
         if (new Random().nextFloat() < 0.3) {
             victim.tell(new Person.Activate(), getSelf());

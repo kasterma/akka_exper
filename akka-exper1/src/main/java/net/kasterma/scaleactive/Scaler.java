@@ -15,6 +15,14 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+/**
+ * Scaler is the class that works at keeping the number of active persons to
+ * be around scale fraction of the number of persons present.
+ *
+ * It needs to know the Person actors that are available, and the desired
+ * scale.  Then regularly it queries which of the available Person are active
+ * and activates or deactivates a random selection to get the number correct.
+ */
 @Slf4j
 final class Scaler extends AbstractActorWithTimers {
     /**
@@ -23,16 +31,19 @@ final class Scaler extends AbstractActorWithTimers {
      * We aim to have Math.round(scale * persons.size()) actors active at any
      * one time.
      */
-    private double scale = 1;
+    private double scale = 0;
+
     /**
      * List of known person actors.
      */
     private List<ActorRef> persons = new ArrayList<>();
+
     /**
      * Id for the current run of collecting active information.  Needed to
      * detect stragglers in the messages received.
      */
     private String runid = null;
+
     /**
      * List of Persons that have announced they are active in the current
      * round.  Reset every round.
@@ -85,13 +96,15 @@ final class Scaler extends AbstractActorWithTimers {
     private static class CheckScale { }
 
     /**
-     *
+     * Start a round of getting the number of active Persons correct.
      */
     private void checkScale() {
         runid = UUID.randomUUID().toString();
         active = new ArrayList<>();
         persons.forEach(p -> p.tell(new Person.RUActive(runid), getSelf()));
-        getTimers().startSingleTimer("activeWait", new CheckScaleDone(), FiniteDuration.create(1, TimeUnit.SECONDS));
+        getTimers().startSingleTimer("activeWait",
+                new CheckScaleDone(),
+                FiniteDuration.create(1, TimeUnit.SECONDS));
     }
 
     /**
@@ -118,7 +131,8 @@ final class Scaler extends AbstractActorWithTimers {
      * Message to indicate time interval to hear from Persons announcing they
      * are active is over.
      */
-    private static class CheckScaleDone { }
+    private static class CheckScaleDone {
+    }
 
     /**
      * This function is called when all active actors should have reported to
@@ -126,7 +140,7 @@ final class Scaler extends AbstractActorWithTimers {
      */
     private void checkScaleDone() {
         long activeCt = active.size();
-        long goalCt = Math.round(scale *  persons.size());
+        long goalCt = Math.round(scale * persons.size());
         if (activeCt < goalCt) {
             log.info("Activate {}", goalCt - activeCt);
             List<ActorRef> candidate = persons.stream()
