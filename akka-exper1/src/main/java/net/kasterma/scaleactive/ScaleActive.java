@@ -14,7 +14,7 @@ import java.util.List;
  * of active Persons.
  */
 @Slf4j
-public class ScaleActive {
+class ScaleActive {
     public static void main(String[] args) throws InterruptedException {
         log.info("Starting");
         ActorSystem system = ActorSystem.create("scaleactive");

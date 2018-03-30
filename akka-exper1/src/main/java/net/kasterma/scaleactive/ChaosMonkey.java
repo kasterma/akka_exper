@@ -19,6 +19,8 @@ final class ChaosMonkey extends AbstractActorWithTimers {
      */
     private final List<ActorRef> persons;
 
+    private final Random random;
+
     static Props props(List<ActorRef> persons) {
         return Props.create(ChaosMonkey.class, persons);
     }
@@ -28,6 +30,8 @@ final class ChaosMonkey extends AbstractActorWithTimers {
         getTimers().startPeriodicTimer("chaos",
                 new Chaos(),
                 FiniteDuration.apply(100, TimeUnit.MILLISECONDS));
+        long seed = 666;
+        random = new Random(seed);
     }
 
     /**
@@ -40,7 +44,7 @@ final class ChaosMonkey extends AbstractActorWithTimers {
      */
     private void chaos() {
         ActorRef victim = persons.get(new Random().nextInt(persons.size()));
-        if (new Random().nextFloat() < 0.3) {
+        if (random.nextFloat() < 0.3) {
             victim.tell(new Person.Activate(), getSelf());
         } else {
             victim.tell(new Person.Deactivate(), getSelf());

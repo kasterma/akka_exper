@@ -36,7 +36,7 @@ final class Scaler extends AbstractActorWithTimers {
     /**
      * List of known person actors.
      */
-    private List<ActorRef> persons = new ArrayList<>();
+    private final List<ActorRef> persons = new ArrayList<>();
 
     /**
      * Id for the current run of collecting active information.  Needed to

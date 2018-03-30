@@ -14,13 +14,16 @@ import java.util.Random;
  */
 final class Site extends AbstractActor {
     private final ActorRef logger;
+    private final Random random;
 
     static Props props(ActorRef logger) {
         return Props.create(Site.class, logger);
     }
 
-    public Site(ActorRef logger) {
+    private Site(ActorRef logger) {
         this.logger = logger;
+        long seed = 42;
+        random = new Random(seed);
     }
 
     /**
@@ -37,8 +40,8 @@ final class Site extends AbstractActor {
      *
      * @param p the Ping containing the human readable id of the sender.
      */
-    void ping(Ping p) {
-        if (new Random().nextFloat() < 0.5) {
+    private void ping(Ping p) {
+        if (random.nextFloat() < 0.5) {
             logger.tell(new MessageLogger.Success(p.id), getSelf());
         } else {
             logger.tell(new MessageLogger.Failure(p.id), getSelf());

@@ -59,7 +59,7 @@ final class Person extends AbstractActorWithTimers {
      * @param a RUActive message with runid for knowing which round this message
      *          is about
      */
-    void ruActive(RUActive a) {
+    private void ruActive(RUActive a) {
         if (active) {
             getSender().tell(new Scaler.Active(a.getRunid()), getSelf());
         }
